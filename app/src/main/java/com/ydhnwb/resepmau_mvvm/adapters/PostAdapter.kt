@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.ydhnwb.resepmau_mvvm.R
 import com.ydhnwb.resepmau_mvvm.models.Post
@@ -29,6 +30,9 @@ class PostAdapter(private var posts : MutableList<Post>, private var context: Co
         fun bind(p : Post, context: Context){
             itemView.post_title.text = p.title
             itemView.post_content.text = p.content
+            itemView.setOnClickListener {
+                Toast.makeText(context, p.id.toString(), Toast.LENGTH_LONG).show()
+            }
         }
     }
 }

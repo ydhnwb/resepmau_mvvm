@@ -10,6 +10,8 @@ interface ApiService {
     @GET("api/post")
     fun allPost(@Header("Authorization") token : String) : Call<WrappedListResponse<Post>>
 
+    @GET("api/post/{id}")
+    fun getPost(@Header("Authorization") token : String, @Path("id") id : String) : Call<WrappedResponse<Post>>
 
     @FormUrlEncoded
     @POST("api/post")
