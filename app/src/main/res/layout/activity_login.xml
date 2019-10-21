@@ -29,6 +29,8 @@
         android:layout_height="wrap_content"/>
     <com.google.android.material.textfield.TextInputLayout
         android:hint="@string/hint_email"
+        app:errorEnabled="true"
+        android:id="@+id/in_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <com.google.android.material.textfield.TextInputEditText
@@ -41,6 +43,8 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:hint="@string/hint_pass"
+        app:errorEnabled="true"
+        android:id="@+id/in_pass"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <com.google.android.material.textfield.TextInputEditText

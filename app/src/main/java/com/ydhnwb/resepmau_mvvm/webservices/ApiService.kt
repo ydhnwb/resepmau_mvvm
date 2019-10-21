@@ -2,6 +2,7 @@ package com.ydhnwb.resepmau_mvvm.webservices
 
 import com.google.gson.annotations.SerializedName
 import com.ydhnwb.resepmau_mvvm.models.Post
+import com.ydhnwb.resepmau_mvvm.models.User
 import retrofit2.Call
 import retrofit2.http.*
 
@@ -27,7 +28,7 @@ interface ApiService {
 
     @FormUrlEncoded
     @POST("api/login")
-    fun login(@Field("email") email : String, @Field("password") password : String)
+    fun login(@Field("email") email : String, @Field("password") password : String) : Call<WrappedResponse<User>>
 
     @FormUrlEncoded
     @POST("api/register")

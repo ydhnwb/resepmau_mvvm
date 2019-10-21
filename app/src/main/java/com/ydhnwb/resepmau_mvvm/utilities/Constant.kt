@@ -27,5 +27,8 @@ class Constant {
             val pref = context.getSharedPreferences("TOKEN", MODE_PRIVATE)
             pref.edit().clear().apply()
         }
+
+        fun isValidEmail(email : String) : Boolean = android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+        fun isValidPassword(password : String) = password.length > 8
     }
 }
