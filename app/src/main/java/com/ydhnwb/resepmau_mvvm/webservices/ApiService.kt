@@ -1,7 +1,7 @@
 package com.ydhnwb.resepmau_mvvm.webservices
 
 import com.google.gson.annotations.SerializedName
-import com.ydhnwb.resepmau_mvvm.models.Post
+import com.ydhnwb.resepmau_mvvm.models.Recipe
 import com.ydhnwb.resepmau_mvvm.models.User
 import retrofit2.Call
 import retrofit2.http.*
@@ -9,22 +9,22 @@ import retrofit2.http.*
 
 interface ApiService {
     @GET("api/post")
-    fun allPost(@Header("Authorization") token : String) : Call<WrappedListResponse<Post>>
+    fun allPost(@Header("Authorization") token : String) : Call<WrappedListResponse<Recipe>>
 
     @GET("api/post/{id}")
-    fun getPost(@Header("Authorization") token : String, @Path("id") id : String) : Call<WrappedResponse<Post>>
+    fun getPost(@Header("Authorization") token : String, @Path("id") id : String) : Call<WrappedResponse<Recipe>>
 
     @FormUrlEncoded
     @POST("api/post")
-    fun createPost(@Header("Authorization") token : String, @Field("title") title : String, @Field("content") content : String) : Call<WrappedResponse<Post>>
+    fun createPost(@Header("Authorization") token : String, @Field("title") title : String, @Field("content") content : String) : Call<WrappedResponse<Recipe>>
 
     @FormUrlEncoded
     @PUT("api/post/{id}")
-    fun updatePost(@Path("id") id : String, @Header("Authorization") token : String, @Field("title") title : String, @Field("content") content : String) : Call<WrappedResponse<Post>>
+    fun updatePost(@Path("id") id : String, @Header("Authorization") token : String, @Field("title") title : String, @Field("content") content : String) : Call<WrappedResponse<Recipe>>
 
     @FormUrlEncoded
     @DELETE("api/post/{id}")
-    fun deletePost(@Header("Authorization") token : String, @Path("id") id : String) : Call<WrappedResponse<Post>>
+    fun deletePost(@Header("Authorization") token : String, @Path("id") id : String) : Call<WrappedResponse<Recipe>>
 
     @FormUrlEncoded
     @POST("api/login")

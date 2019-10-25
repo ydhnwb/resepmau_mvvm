@@ -7,12 +7,12 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.ydhnwb.resepmau_mvvm.R
-import com.ydhnwb.resepmau_mvvm.models.Post
+import com.ydhnwb.resepmau_mvvm.models.Recipe
 import kotlinx.android.synthetic.main.list_item_post.view.*
 
-class PostAdapter(private var posts : MutableList<Post>, private var context: Context) : RecyclerView.Adapter<PostAdapter.ViewHolder>(){
+class PostAdapter(private var posts : MutableList<Recipe>, private var context: Context) : RecyclerView.Adapter<PostAdapter.ViewHolder>(){
 
-    fun changeList(ps : List<Post>){
+    fun changeList(ps : List<Recipe>){
         posts.clear()
         posts.addAll(ps)
         notifyDataSetChanged()
@@ -27,7 +27,7 @@ class PostAdapter(private var posts : MutableList<Post>, private var context: Co
     override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.bind(posts[position], context)
 
     class ViewHolder (itemView : View) : RecyclerView.ViewHolder(itemView){
-        fun bind(p : Post, context: Context){
+        fun bind(p : Recipe, context: Context){
             itemView.post_title.text = p.title
             itemView.post_content.text = p.content
             itemView.setOnClickListener {

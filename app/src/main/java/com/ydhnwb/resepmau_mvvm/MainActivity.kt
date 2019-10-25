@@ -10,17 +10,16 @@ import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProviders
 import com.ydhnwb.resepmau_mvvm.utilities.Constant
-import com.ydhnwb.resepmau_mvvm.viewmodels.PostViewModel
+import com.ydhnwb.resepmau_mvvm.viewmodels.RecipeViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ydhnwb.resepmau_mvvm.adapters.PostAdapter
-import com.ydhnwb.resepmau_mvvm.ui.BaseUIState
+import com.ydhnwb.resepmau_mvvm.viewmodels.RecipeState
 import kotlinx.android.synthetic.main.content_main.*
 
-
 class MainActivity : AppCompatActivity() {
-    private lateinit var postViewModel : PostViewModel
+    private lateinit var postViewModel : RecipeViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         isLoggedIn()
         setupRecycler()
-        postViewModel = ViewModelProviders.of(this).get(PostViewModel::class.java)
+        postViewModel = ViewModelProviders.of(this).get(RecipeViewModel::class.java)
         postViewModel.getPosts().observe(this, Observer {
             rv_main.adapter?.let {adapter ->
                 if(adapter is PostAdapter){
@@ -45,6 +44,28 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun handleStatus(it : RecipeState){
+        when(it){
+            is RecipeState.Loading -> isLoading(it.state)
+            is RecipeState.Error -> {
+                isLoading(false)
+                toast(it.message)
+            }
+        }
+    }
+
+    private fun isLoading(state : Boolean){
+        if(state){
+            loading.visibility = View.VISIBLE
+            loading.isIndeterminate = true
+        }else{
+            loading.visibility = View.GONE
+            loading.isIndeterminate = false
+            loading.progress = 0
+        }
+    }
+
+    private fun toast(message : String?) = Toast.makeText(this, message, Toast.LENGTH_LONG).show()
 
     private fun isLoggedIn(){
         if(Constant.getToken(this).equals("undefined")){
@@ -72,7 +93,6 @@ class MainActivity : AppCompatActivity() {
         postViewModel.fetchAllPost(Constant.getToken(this))
     }
 
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_settings -> true
@@ -80,28 +100,4 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun handleStatus(status : BaseUIState){
-        when(status){
-            BaseUIState.ERROR -> {
-                isLoading(false)
-                toast(postViewModel.getMessage())
-            }
-            BaseUIState.DONE_LOADING -> isLoading(false)
-            BaseUIState.NO_NETWORK -> toast("No network connection")
-            BaseUIState.LOADING -> isLoading(true)
-        }
-    }
-
-    private fun isLoading(state : Boolean){
-        if(state){
-            loading.visibility = View.VISIBLE
-            loading.isIndeterminate = true
-        }else{
-            loading.visibility = View.GONE
-            loading.isIndeterminate = false
-            loading.progress = 0
-        }
-    }
-
-    private fun toast(message : String?) = Toast.makeText(this, message, Toast.LENGTH_LONG).show()
 }

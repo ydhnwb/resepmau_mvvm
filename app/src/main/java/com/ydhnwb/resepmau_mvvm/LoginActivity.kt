@@ -7,13 +7,12 @@ import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import com.ydhnwb.resepmau_mvvm.ui.BaseUIState
-import com.ydhnwb.resepmau_mvvm.ui.LoginState
+import com.ydhnwb.resepmau_mvvm.utilities.Constant
+import com.ydhnwb.resepmau_mvvm.viewmodels.UserState
 import com.ydhnwb.resepmau_mvvm.viewmodels.UserViewModel
 import kotlinx.android.synthetic.main.activity_login.*
 
 class LoginActivity : AppCompatActivity() {
-
     private lateinit var userViewModel: UserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,7 +20,7 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
         supportActionBar?.hide()
         userViewModel = ViewModelProviders.of(this).get(UserViewModel::class.java)
-        userViewModel.getLoginState().observer(this, Observer {
+        userViewModel.getUIState().observer(this, Observer {
             handleLoginState(it)
         })
         doLogin()
@@ -32,30 +31,40 @@ class LoginActivity : AppCompatActivity() {
             val email = et_email.text.toString().trim()
             val password = et_password.text.toString().trim()
             if(userViewModel.validate(email, password)){
-                userViewModel.login(email, password, this@LoginActivity)
+                userViewModel.login(email, password)
             }
         }
     }
 
-    private fun handleLoginState(login_state : LoginState){
-        when(login_state){
-            LoginState.RESET -> {
+    private fun handleLoginState(it : UserState){
+        when(it){
+            is UserState.Error -> {
+                isLoading(false)
+                toast(it.message)
+            }
+            is UserState.Message -> toast(it.message)
+            is UserState.LoginFailed -> {
+                isLoading(false)
+                toast(it.message)
+            }
+            is UserState.Reset -> {
                 setEmailError(null)
                 setPasswordError(null)
             }
-            LoginState.EMAIL_INVALID -> setEmailError("Email tidak valid")
-            LoginState.PASSWORD_INVALID -> setPasswordError("Password tidak valid")
-            LoginState.SUCCESS -> {
-                startActivity(Intent(this@LoginActivity, MainActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-                    flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
-                }).also { finish() }
+            is UserState.Loading -> isLoading(it.state)
+            is UserState.UserInvalid -> {
+                it.emailIsValid?.let {
+                    setEmailError(it)
+                }
+                it.passwordIsValid?.let {
+                    setPasswordError(it)
+                }
             }
-            LoginState.LOADING -> isLoading(true)
-            LoginState.DONE_LOADING -> isLoading(false)
-            LoginState.ERROR -> {
-                isLoading(false)
-                toast(userViewModel.getMessage())
+            is UserState.LoginSuccess -> {
+                Constant.setToken(this@LoginActivity, it.token!!)
+                startActivity(Intent(this@LoginActivity, MainActivity::class.java)).also {
+                    finish()
+                }
             }
         }
     }

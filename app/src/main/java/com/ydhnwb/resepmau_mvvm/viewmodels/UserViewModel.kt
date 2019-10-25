@@ -1,11 +1,7 @@
 package com.ydhnwb.resepmau_mvvm.viewmodels
 
-import android.content.Context
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.ydhnwb.resepmau_mvvm.models.User
-import com.ydhnwb.resepmau_mvvm.ui.BaseUIState
-import com.ydhnwb.resepmau_mvvm.ui.LoginState
 import com.ydhnwb.resepmau_mvvm.utilities.Constant
 import com.ydhnwb.resepmau_mvvm.utilities.SingleLiveEvent
 import com.ydhnwb.resepmau_mvvm.webservices.ApiClient
@@ -15,49 +11,60 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class UserViewModel : ViewModel() {
-    private var loginState = SingleLiveEvent<LoginState>()
-    private var message : String? = null
+    private var state : SingleLiveEvent<UserState> = SingleLiveEvent()
     private var api = ApiClient.instance()
 
-    fun login(email : String, password : String, context: Context){
-        loginState.value = LoginState.LOADING
+    fun login(email : String, password : String){
+        state.value = UserState.Loading(true)
         api.login(email, password).enqueue(object : Callback<WrappedResponse<User>>{
             override fun onFailure(call: Call<WrappedResponse<User>>, t: Throwable) {
                 println(t.message.toString())
-                message = t.message.toString()
-                loginState.value = LoginState.ERROR
+                state.value = UserState.Error(t.message)
             }
 
             override fun onResponse(call: Call<WrappedResponse<User>>, response: Response<WrappedResponse<User>>) {
                 if(response.isSuccessful){
                     val resp = response.body() as WrappedResponse<User>
                     if(resp.status.equals("1")){
-                        Constant.setToken(context, "Bearer "+resp.data!!.api_token!!)
+                        state.value = UserState.LoginSuccess("Bearer ${resp.data!!.api_token}")
+                    }else{
+                        state.value = UserState.LoginFailed("Login failed. Please check your email and password")
                     }
-                    loginState.value = LoginState.DONE_LOADING
-                    loginState.value = LoginState.SUCCESS
                 }else{
-                    message = "Cannot login [${response.code()}]"
-                    loginState.value = LoginState.ERROR
+                    state.value = UserState.Error("Login failed")
                 }
             }
         })
     }
 
     fun validate(email: String, password: String) : Boolean{
-        loginState.value = LoginState.RESET
-        if(email.isEmpty() || !Constant.isValidEmail(email)){
-            loginState.value = LoginState.EMAIL_INVALID
+        state.value = UserState.Reset
+        if(email.isEmpty() || password.isEmpty()){
+            state.value = UserState.Message("Please fill all form")
             return false
         }
-
-        if(password.isEmpty() || !Constant.isValidPassword(password)){
-            loginState.value = LoginState.PASSWORD_INVALID
+        if(!Constant.isValidEmail(email)){
+            state.value = UserState.UserInvalid(emailIsValid = "Email is not valid")
+            return false
+        }
+        if(!Constant.isValidPassword(password)){
+            state.value = UserState.UserInvalid(passwordIsValid = "Password at least contains eight character")
             return false
         }
         return true
     }
 
-    fun getLoginState() = loginState
-    fun getMessage() = message
+    fun getUIState() = state
+
+}
+
+
+sealed class UserState {
+    data class Error(var message : String?) : UserState()
+    data class Loading(var state : Boolean = false) : UserState()
+    data class UserInvalid(var nameIsValid : String? = null, var emailIsValid : String? = null, var passwordIsValid : String? = null) : UserState()
+    data class LoginSuccess(var token : String? = null) : UserState()
+    data class LoginFailed(var message : String) : UserState()
+    data class Message(var message : String?) : UserState()
+    object Reset : UserState()
 }
