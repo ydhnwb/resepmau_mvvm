@@ -2,7 +2,6 @@ package com.ydhnwb.resepmau_mvvm
 
 import android.content.Intent
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
@@ -38,9 +37,10 @@ class MainActivity : AppCompatActivity() {
         postViewModel.getState().observe(this, Observer {
             handleStatus(it)
         })
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+        fab.setOnClickListener {
+            startActivity(Intent(this, RecipeActivity::class.java).apply {
+                putExtra("is_update", false)
+            })
         }
     }
 
@@ -95,7 +95,14 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_logout -> {
+                Constant.clearToken(this)
+                startActivity(Intent(this, LoginActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                }).also { finish() }
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }

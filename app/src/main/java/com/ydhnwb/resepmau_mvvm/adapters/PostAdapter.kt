@@ -1,12 +1,13 @@
 package com.ydhnwb.resepmau_mvvm.adapters
 
 import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.ydhnwb.resepmau_mvvm.R
+import com.ydhnwb.resepmau_mvvm.RecipeActivity
 import com.ydhnwb.resepmau_mvvm.models.Recipe
 import kotlinx.android.synthetic.main.list_item_post.view.*
 
@@ -31,7 +32,10 @@ class PostAdapter(private var posts : MutableList<Recipe>, private var context: 
             itemView.post_title.text = p.title
             itemView.post_content.text = p.content
             itemView.setOnClickListener {
-                Toast.makeText(context, p.id.toString(), Toast.LENGTH_LONG).show()
+                context.startActivity(Intent(context, RecipeActivity::class.java).apply {
+                    putExtra("is_update", true)
+                    putExtra("id", p.id)
+                })
             }
         }
     }

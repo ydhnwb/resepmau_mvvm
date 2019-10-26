@@ -26,9 +26,9 @@ class UserViewModel : ViewModel() {
                 if(response.isSuccessful){
                     val resp = response.body() as WrappedResponse<User>
                     if(resp.status.equals("1")){
-                        state.value = UserState.LoginSuccess("Bearer ${resp.data!!.api_token}")
+                        state.value = UserState.Success("Bearer ${resp.data!!.api_token}")
                     }else{
-                        state.value = UserState.LoginFailed("Login failed. Please check your email and password")
+                        state.value = UserState.Failed("Login failed. Please check your email and password")
                     }
                 }else{
                     state.value = UserState.Error("Login failed")
@@ -37,8 +37,21 @@ class UserViewModel : ViewModel() {
         })
     }
 
-    fun validate(email: String, password: String) : Boolean{
+    fun validate(name : String?, email: String, password: String) : Boolean{
         state.value = UserState.Reset
+
+        if(name != null){
+            if(name.isEmpty()){
+                state.value = UserState.Message("Name cannot be empty")
+                return false
+            }
+
+            if (name.length < 5){
+                state.value = UserState.UserInvalid("Name at lease five characaters")
+                return false
+            }
+        }
+
         if(email.isEmpty() || password.isEmpty()){
             state.value = UserState.Message("Please fill all form")
             return false
@@ -54,6 +67,30 @@ class UserViewModel : ViewModel() {
         return true
     }
 
+
+    fun register(name : String, email : String, password: String){
+        state.value = UserState.Loading(true)
+        api.register(name, email, password).enqueue(object : Callback<WrappedResponse<User>>{
+            override fun onFailure(call: Call<WrappedResponse<User>>, t: Throwable) {
+                println(t.message)
+                state.value = UserState.Error(t.message)
+            }
+
+            override fun onResponse(call: Call<WrappedResponse<User>>, response: Response<WrappedResponse<User>>) {
+                if(response.isSuccessful){
+                    val b = response.body() as WrappedResponse
+                    if(b.status.equals("1")){
+                        state.value = UserState.Success(b.data!!.api_token)
+                    }else{
+                        state.value = UserState.Failed("Failed to create account")
+                    }
+                }else{
+                    state.value = UserState.Failed("Failed to register")
+                }
+            }
+        })
+    }
+
     fun getUIState() = state
 
 }
@@ -63,8 +100,8 @@ sealed class UserState {
     data class Error(var message : String?) : UserState()
     data class Loading(var state : Boolean = false) : UserState()
     data class UserInvalid(var nameIsValid : String? = null, var emailIsValid : String? = null, var passwordIsValid : String? = null) : UserState()
-    data class LoginSuccess(var token : String? = null) : UserState()
-    data class LoginFailed(var message : String) : UserState()
+    data class Success(var token : String? = null) : UserState()
+    data class Failed(var message : String) : UserState()
     data class Message(var message : String?) : UserState()
     object Reset : UserState()
 }

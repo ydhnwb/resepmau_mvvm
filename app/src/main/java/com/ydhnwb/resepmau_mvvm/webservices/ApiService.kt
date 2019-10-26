@@ -22,7 +22,6 @@ interface ApiService {
     @PUT("api/post/{id}")
     fun updatePost(@Path("id") id : String, @Header("Authorization") token : String, @Field("title") title : String, @Field("content") content : String) : Call<WrappedResponse<Recipe>>
 
-    @FormUrlEncoded
     @DELETE("api/post/{id}")
     fun deletePost(@Header("Authorization") token : String, @Path("id") id : String) : Call<WrappedResponse<Recipe>>
 
@@ -32,7 +31,7 @@ interface ApiService {
 
     @FormUrlEncoded
     @POST("api/register")
-    fun register(@Field("name") name : String, @Field("email") email : String, @Field("password") password : String)
+    fun register(@Field("name") name : String, @Field("email") email : String, @Field("password") password : String) : Call<WrappedResponse<User>>
 
 }
 
